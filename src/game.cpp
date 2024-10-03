@@ -22,36 +22,59 @@ void Game::update() {
     if (dir == Direction::STOP) return;
 
     Point newHead = snake;
+    Direction newDir = dir;
+
     switch (dir) {
-        case Direction::LEFT:  newHead.x--; break;
-        case Direction::RIGHT: newHead.x++; break;
-        case Direction::UP:    newHead.y--; break;
-        case Direction::DOWN:  newHead.y++; break;
+        case Direction::LEFT:
+            if (lastDir != Direction::RIGHT) newHead.x--;
+            else newDir = lastDir;
+            break;
+        case Direction::RIGHT:
+            if (lastDir != Direction::LEFT) newHead.x++;
+            else newDir = lastDir;
+            break;
+        case Direction::UP:
+            if (lastDir != Direction::DOWN) newHead.y--;
+            else newDir = lastDir;
+            break;
+        case Direction::DOWN:
+            if (lastDir != Direction::UP) newHead.y++;
+            else newDir = lastDir;
+            break;
     }
 
-    if (newHead.x >= width) newHead.x = 0;
-    else if (newHead.x < 0) newHead.x = width - 1;
-    if (newHead.y >= height) newHead.y = 0;
-    else if (newHead.y < 0) newHead.y = height - 1;
+    // Eğer yön değişmediyse, yeni pozisyonu uygula
+    if (newDir == dir) {
+        if (newHead.x >= width) newHead.x = 0;
+        else if (newHead.x < 0) newHead.x = width - 1;
+        if (newHead.y >= height) newHead.y = 0;
+        else if (newHead.y < 0) newHead.y = height - 1;
 
-    for (const auto& segment : tail) {
-        if (newHead.x == segment.x && newHead.y == segment.y) {
-            gameOver = true;
-            return;
+        for (const auto& segment : tail) {
+            if (newHead.x == segment.x && newHead.y == segment.y) {
+                gameOver = true;
+                return;
+            }
         }
-    }
 
-    if (newHead.x == fruit.x && newHead.y == fruit.y) {
-        score += 10;
-        fruit = {rand() % width, rand() % height};
-        tail.push_back(snake);
-    } else if (!tail.empty()) {
-        tail.push_back(snake);
-        tail.erase(tail.begin());
-    }
+        if (newHead.x == fruit.x && newHead.y == fruit.y) {
+            score += 10;
+            fruit = {rand() % width, rand() % height};
+            tail.push_back(snake);
+        } else if (!tail.empty()) {
+            tail.push_back(snake);
+            tail.erase(tail.begin());
+        }
 
-    snake = newHead;
+        snake = newHead;
+        lastDir = dir;
+    }
+    // Eğer yön değiştiyse, eski yönü koru
+    else {
+        dir = lastDir;
+    }
 }
+
 
 void Game::setDirection(Direction d) {
     dir = d;

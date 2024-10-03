@@ -32,6 +32,7 @@ private:
     std::vector<Point> tail;
     int score;
     Direction dir;  // Burada sadece Direction tipini kullanıyoruz
+    Direction lastDir;
 };
 
 #endif
